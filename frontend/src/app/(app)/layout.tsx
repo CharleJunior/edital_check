@@ -1,6 +1,31 @@
+'use client';
 import Link from "next/link";
+import { useState, useEffect } from "react";
+
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
+  const [nomeEmpresa, setNomeEmpresa] = useState("Carregando...");
+  useEffect(() => {
+    async function carregarEmpresa() {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${baseUrl}/consult`);
+        const data = await response.json();
+        const empresa = Array.isArray(data) ? data[0] : data;
+
+        if (empresa && empresa.companyName) {
+          setNomeEmpresa(empresa.companyName);
+        } else {
+          setNomeEmpresa("Empresa Não Identificada");
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados da empresa:", error);
+        setNomeEmpresa("Erro ao carregar");
+      }
+    }
+
+    carregarEmpresa();
+  }, []);
   return (
     <div>
       <header className="bg-blue-700 text-white">
@@ -17,7 +42,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <span className="text-blue-200">Oportunidades</span>
           </nav>
 
-          <span className="ml-auto text-sm">Empresa Exemplo Ltda</span>
+          <span className="ml-auto text-sm">{nomeEmpresa}</span>
         </div>
       </header>
 

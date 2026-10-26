@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { documentos, type Status } from "@/data/documentos";
+import { useState, useEffect } from "react";
+import { SearchDocuments, type Status, type Document } from "@/data/documentos";
 
 // Cor de cada status(ausente / regular /  vence em breve e vencido)
 const cores: Record<Status, string> = {
@@ -22,40 +22,54 @@ const filtros: Array<Status | "Todos"> = [
 export default function HabilitacaoPage() {
   // Guarda o filtro escolhido, ao clicar no filtro a tela atualiza
   const [filtro, setFiltro] = useState<Status | "Todos">("Todos");
+  const [loading, setLoading] = useState(true);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  useEffect(() => {
+    async function carregar() {
+      const dadosFormatados = await SearchDocuments();
+      setDocuments(dadosFormatados);
+      setLoading(false);
+    }
+    carregar();
+  }, []);
 
-  const regulares = documentos.filter((d) => d.status === "Regular").length;
-  const vencemEmBreve = documentos.filter((d) => d.status === "Vence em breve").length;
-  const vencidos = documentos.filter((d) => d.status === "Vencido").length;
-  const ausentes = documentos.filter((d) => d.status === "Ausente").length;
+  if (loading) {
+    return <div className="p-8 text-center text-blue-700 font-medium">Carregando documentos...</div>;
+  }
 
-  // Documentos que estão para vencer, e precisa de atenção
-  const atencao = documentos.filter(
+  const regulares = documents.filter((d) => d.status === "Regular").length;
+  const vencemEmBreve = documents.filter((d) => d.status === "Vence em breve").length;
+  const vencidos = documents.filter((d) => d.status === "Vencido").length;
+  const ausentes = documents.filter((d) => d.status === "Ausente").length;
+
+  // Documents que estão para vencer, e precisa de atenção
+  const atencao = documents.filter(
     (d) => d.status === "Vencido" || d.status === "Vence em breve",
   );
 
   // Lista mostrada na tela de acordo com o filtro
   const lista =
     filtro === "Todos"
-      ? documentos
-      : documentos.filter((d) => d.status === filtro);
+      ? documents
+      : documents.filter((d) => d.status === filtro);
 
   return (
     <div>
       <h1 className="text-2xl font-bold">Central de Habilitação</h1>
       <p className="mb-6 text-blue-700">
-        Acompanhe a validade dos documentos da empresa.
+        Acompanhe a validade dos documents da empresa.
       </p>
 
       {/* blocos no topo com os números */}
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-5">
-        <Quadro titulo="Monitorados" valor={documentos.length} />
+        <Quadro titulo="Monitorados" valor={documents.length} />
         <Quadro titulo="Regulares" valor={regulares} />
         <Quadro titulo="Vencem em 30 dias" valor={vencemEmBreve} />
         <Quadro titulo="Vencidos" valor={vencidos} />
         <Quadro titulo="Ausentes" valor={ausentes} />
       </div>
 
-      {/* bloco logo abaixo que mostra documentos proximos a vencer e os que estão vencidos*/}
+      {/* bloco logo abaixo que mostra documents proximos a vencer e os que estão vencidos*/}
       {atencao.length > 0 && (
         <div className="mb-6 rounded border border-blue-300 bg-blue-100 p-4">
           <p className="font-bold">Precisa de atenção</p>
@@ -86,7 +100,7 @@ export default function HabilitacaoPage() {
         ))}
       </div>
 
-      {/* Lista de documentos */}
+      {/* Lista de documents */}
       {lista.length === 0 ? (
         <p>Nenhum documento neste filtro.</p>
       ) : (
