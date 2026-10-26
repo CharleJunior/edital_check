@@ -36,8 +36,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Link href="/habilitacao" className="font-semibold underline">
               Habilitação
             </Link>
+              <Link href="/empresa" className="hover:underline">
+              Empresa
+            </Link>
             {/* Telas que estão pendentes */}
-            <span className="text-blue-200">Empresa</span>
             <span className="text-blue-200">Atestados</span>
             <span className="text-blue-200">Oportunidades</span>
           </nav>
