@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SearchDocuments, type Status, type Document } from "@/data/documentos";
+import { buscarDocumentos, type Status, type Documento } from "@/data/documentos";
 
 // Cor de cada status(ausente / regular /  vence em breve e vencido)
 const cores: Record<Status, string> = {
@@ -23,14 +23,14 @@ export default function HabilitacaoPage() {
   // Guarda o filtro escolhido, ao clicar no filtro a tela atualiza
   const [filtro, setFiltro] = useState<Status | "Todos">("Todos");
   const [loading, setLoading] = useState(true);
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const [documents, setDocuments] = useState<Documento[]>([]);
+  const [origem, setOrigem] = useState<"api" | "teste">("api");
   useEffect(() => {
-    async function carregar() {
-      const dadosFormatados = await SearchDocuments();
-      setDocuments(dadosFormatados);
+    buscarDocumentos().then((resultado) => {
+      setDocuments(resultado.documentos);
+      setOrigem(resultado.origem);
       setLoading(false);
-    }
-    carregar();
+    });
   }, []);
 
   if (loading) {
@@ -42,7 +42,7 @@ export default function HabilitacaoPage() {
   const vencidos = documents.filter((d) => d.status === "Vencido").length;
   const ausentes = documents.filter((d) => d.status === "Ausente").length;
 
-  // Documents que estão para vencer, e precisa de atenção
+  // Documentos que estão para vencer, e precisa de atenção
   const atencao = documents.filter(
     (d) => d.status === "Vencido" || d.status === "Vence em breve",
   );
@@ -57,8 +57,14 @@ export default function HabilitacaoPage() {
     <div>
       <h1 className="text-2xl font-bold">Central de Habilitação</h1>
       <p className="mb-6 text-blue-700">
-        Acompanhe a validade dos documents da empresa.
+        Acompanhe a validade dos documentos da empresa.
       </p>
+
+      {origem === "teste" && (
+        <p className="mb-6 rounded border border-blue-300 bg-blue-100 p-3 text-sm">
+          Mostrando dados de teste: o back não respondeu.
+        </p>
+      )}
 
       {/* blocos no topo com os números */}
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-5">
@@ -69,7 +75,7 @@ export default function HabilitacaoPage() {
         <Quadro titulo="Ausentes" valor={ausentes} />
       </div>
 
-      {/* bloco logo abaixo que mostra documents proximos a vencer e os que estão vencidos*/}
+      {/* bloco logo abaixo que mostra documentos próximos a vencer e os que estão vencidos*/}
       {atencao.length > 0 && (
         <div className="mb-6 rounded border border-blue-300 bg-blue-100 p-4">
           <p className="font-bold">Precisa de atenção</p>
@@ -100,7 +106,7 @@ export default function HabilitacaoPage() {
         ))}
       </div>
 
-      {/* Lista de documents */}
+      {/* Lista de documentos */}
       {lista.length === 0 ? (
         <p>Nenhum documento neste filtro.</p>
       ) : (

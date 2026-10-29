@@ -1,50 +1,35 @@
-'use client';
-import Link from "next/link";
-import { useState, useEffect } from "react";
+"use client";
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Menu from "@/components/menu";
+import { buscarEmpresa } from "@/lib/api";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [nomeEmpresa, setNomeEmpresa] = useState("Carregando...");
+
   useEffect(() => {
-    async function carregarEmpresa() {
-      try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-        const response = await fetch(`${baseUrl}/consult`);
-        const data = await response.json();
-        const empresa = Array.isArray(data) ? data[0] : data;
-
-        if (empresa && empresa.companyName) {
-          setNomeEmpresa(empresa.companyName);
-        } else {
-          setNomeEmpresa("Empresa Não Identificada");
-        }
-      } catch (error) {
-        console.error("Erro ao buscar dados da empresa:", error);
-        setNomeEmpresa("Erro ao carregar");
-      }
-    }
-
-    carregarEmpresa();
+    buscarEmpresa().then((empresa) => {
+      setNomeEmpresa(
+        empresa
+          ? empresa.companyName || "Empresa não identificada"
+          : "Empresa Exemplo (teste)",
+      );
+    });
   }, []);
+
   return (
     <div>
       <header className="bg-blue-700 text-white">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-6 px-4 py-4">
           <span className="text-xl font-bold">EditalCheck</span>
-
-          <nav className="flex gap-4 text-sm">
-            <Link href="/habilitacao" className="font-semibold underline">
-              Habilitação
+          <Menu />
+          <div className="ml-auto flex items-center gap-4 text-sm">
+            <span>{nomeEmpresa}</span>
+            <Link href="/login" className="underline hover:text-blue-200">
+              Entrar
             </Link>
-              <Link href="/empresa" className="hover:underline">
-              Empresa
-            </Link>
-            {/* Telas que estão pendentes */}
-            <span className="text-blue-200">Atestados</span>
-            <span className="text-blue-200">Oportunidades</span>
-          </nav>
-
-          <span className="ml-auto text-sm">{nomeEmpresa}</span>
+          </div>
         </div>
       </header>
 
