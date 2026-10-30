@@ -2,21 +2,37 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../lib/firebase";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function entrar(e: React.FormEvent) {
+  async function entrar(e: React.FormEvent) {
     e.preventDefault();
     setErro("");
+
     if (!email.includes("@")) return setErro("Informe um e-mail válido.");
     if (!senha) return setErro("Informe a senha.");
 
-    // Aqui entrará a chamada de login do back. Por enquanto só segue para o sistema mesmo.
-    router.push("/habilitacao");
+    setLoading(true);
+
+    try {
+      //login real 
+      await signInWithEmailAndPassword(auth, email, senha);
+
+      //redireciona para a área interna do sistema
+      router.push("/habilitacao");
+    } catch (err: any) {
+      console.error(err);
+      setErro("E-mail ou senha incorretos.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   const campo =
@@ -51,22 +67,19 @@ export default function LoginPage() {
         </label>
 
         {erro && (
-          <p role="alert" className="text-sm font-medium text-blue-900">
+          <p role="alert" className="text-sm font-medium text-red-600">
             {erro}
           </p>
         )}
 
         <button
           type="submit"
-          className="w-full rounded bg-blue-700 py-2 font-medium text-white hover:bg-blue-800"
+          disabled={loading}
+          className="w-full rounded bg-blue-700 py-2 font-medium text-white hover:bg-blue-800 disabled:opacity-50"
         >
-          Entrar
+          {loading ? "Entrando..." : "Entrar"}
         </button>
       </form>
-
-      <p className="mt-4 text-sm text-blue-700">
-        Login em modo de teste: ainda sem back.
-      </p>
     </main>
   );
 }

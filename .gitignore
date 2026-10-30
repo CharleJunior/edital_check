@@ -2,6 +2,8 @@
 /dist
 /node_modules
 /build
+/config
+editalcheckprovisional-firebase-adminsdk-fbsvc-a4e1910c2c.json
 
 # TypeScript build cache
 *.tsbuildinfo
