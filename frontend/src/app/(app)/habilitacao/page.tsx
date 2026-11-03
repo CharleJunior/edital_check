@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { buscarDocumentos, type Status, type Documento } from "@/data/documentos";
 
 // Cor de cada status(ausente / regular /  vence em breve e vencido)
@@ -37,6 +38,20 @@ export default function HabilitacaoPage() {
     return <div className="p-8 text-center text-blue-700 font-medium">Carregando documentos...</div>;
   }
 
+  if (origem === "api" && documents.length === 0) {
+    return (
+      <div>
+        <h1 className="text-2xl font-bold">Central de Habilitação</h1>
+        <p className="mt-4 rounded border border-blue-300 bg-blue-100 p-4 text-sm">
+          Nenhum documento cadastrado ainda.{" "}
+          <Link href="/documentos" className="font-semibold underline">
+            Cadastrar documentos
+          </Link>
+        </p>
+      </div>
+    );
+  }
+
   const regulares = documents.filter((d) => d.status === "Regular").length;
   const vencemEmBreve = documents.filter((d) => d.status === "Vence em breve").length;
   const vencidos = documents.filter((d) => d.status === "Vencido").length;
@@ -62,7 +77,7 @@ export default function HabilitacaoPage() {
 
       {origem === "teste" && (
         <p className="mb-6 rounded border border-blue-300 bg-blue-100 p-3 text-sm">
-          Mostrando dados de teste: o back não respondeu.
+          Exibindo dados demonstrativos: não foi possível obter os documentos da API nesta consulta. Confira o login e se o backend está em execução.
         </p>
       )}
 

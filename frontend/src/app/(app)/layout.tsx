@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Menu from "@/components/menu";
-import { buscarEmpresa } from "@/lib/api";
-import { auth } from "../../lib/firebase";
+import { buscarEmpresa, nomeDaEmpresa } from "@/lib/api";
+import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -18,7 +18,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         setUsuarioLogado(true);
         const empresa = await buscarEmpresa();
         setNomeEmpresa(
-          empresa?.razaoSocial || "Empresa sem nome cadastrado"
+          nomeDaEmpresa(empresa) || "Empresa sem nome cadastrado"
         );
       } else {
         setUsuarioLogado(false);

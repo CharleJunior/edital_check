@@ -1,9 +1,27 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../lib/firebase";
+import { auth } from "@/lib/firebase";
+
+function traduzirErro(codigo: string) {
+  switch (codigo) {
+    case "auth/invalid-email":
+      return "E-mail inválido.";
+    case "auth/too-many-requests":
+      return "Muitas tentativas. Aguarde um pouco e tente de novo.";
+    case "auth/network-request-failed":
+      return "Sem conexão com o servidor de login. Verifique a internet.";
+    case "auth/invalid-credential":
+    case "auth/wrong-password":
+    case "auth/user-not-found":
+      return "E-mail ou senha incorretos.";
+    default:
+      return "Não foi possível entrar. Tente novamente.";
+  }
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,16 +38,11 @@ export default function LoginPage() {
     if (!senha) return setErro("Informe a senha.");
 
     setLoading(true);
-
     try {
-      //login real 
       await signInWithEmailAndPassword(auth, email, senha);
-
-      //redireciona para a área interna do sistema
       router.push("/habilitacao");
-    } catch (err: any) {
-      console.error(err);
-      setErro("E-mail ou senha incorretos.");
+    } catch (err) {
+      setErro(traduzirErro((err as { code?: string }).code ?? ""));
     } finally {
       setLoading(false);
     }
@@ -67,7 +80,7 @@ export default function LoginPage() {
         </label>
 
         {erro && (
-          <p role="alert" className="text-sm font-medium text-red-600">
+          <p role="alert" className="text-sm font-medium text-blue-900">
             {erro}
           </p>
         )}
@@ -80,6 +93,10 @@ export default function LoginPage() {
           {loading ? "Entrando..." : "Entrar"}
         </button>
       </form>
+
+      <Link href="/cadastro" className="mt-6 text-sm text-blue-700 underline">
+        Criar conta
+      </Link>
     </main>
   );
 }

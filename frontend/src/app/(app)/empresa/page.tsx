@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { buscarEmpresa } from "@/lib/api"; // <-- Importa a função que busca no back
+import { buscarEmpresa, nomeDaEmpresa } from "@/lib/api";
 
 const formularioVazio = {
   razaoSocial: "",
@@ -45,7 +45,7 @@ export default function EmpresaPage() {
           const empresaSalva = await buscarEmpresa();
           if (empresaSalva) {
             setForm({
-              razaoSocial: empresaSalva.razaoSocial || "",
+              razaoSocial: nomeDaEmpresa(empresaSalva),
               cnpj: empresaSalva.cnpj || "",
               porte: empresaSalva.porte || "",
               email: empresaSalva.email || "",
@@ -53,8 +53,8 @@ export default function EmpresaPage() {
               address: empresaSalva.address || "",
             });
           }
-        } catch (error) {
-          console.error("Erro ao carregar dados da empresa:", error);
+        } catch {
+          // segue com o formulário vazio
         } finally {
           setCarregando(false);
         }
@@ -102,6 +102,7 @@ export default function EmpresaPage() {
         },
         body: JSON.stringify({
           ...form,
+          companyName: form.razaoSocial,
           userId: userUid,
         }),
       });
@@ -111,8 +112,7 @@ export default function EmpresaPage() {
       }
 
       setSalvo(true);
-    } catch (error) {
-      console.error(error);
+    } catch {
       setErros(["Erro ao conectar com o servidor para salvar os dados."]);
     }
   }
@@ -173,7 +173,7 @@ export default function EmpresaPage() {
         </div>
 
         {erros.length > 0 && (
-          <ul className="list-disc rounded border border-red-300 bg-red-50 p-3 pl-8 text-sm text-red-700">
+          <ul className="list-disc rounded border border-blue-300 bg-blue-100 p-3 pl-8 text-sm text-blue-900">
             {erros.map((erro) => (
               <li key={erro}>{erro}</li>
             ))}
@@ -181,7 +181,7 @@ export default function EmpresaPage() {
         )}
 
         {salvo && (
-          <p className="rounded border border-green-300 bg-green-50 p-3 text-sm font-semibold text-green-800">
+          <p className="rounded border border-blue-300 bg-blue-100 p-3 text-sm font-semibold text-blue-800">
             Dados salvos com sucesso no banco de dados!
           </p>
         )}
