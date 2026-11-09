@@ -1,0 +1,25 @@
+Rota de desenvolvimento
+
+O sistema deve analisar riscos, ver quais licitações são compativeis com a empresa
+ver pendencias e etc
+
+exemplos de saídas desejadas:
+Compatibilidade comercial 94% 
+Habilitação jurídica 100% 
+Fiscal / trabalhista 92% 
+Capacidade técnica 86% 
+Econômico-financeira 100% 
+Capacidade operacional 91% 
+Risco Baixo 
+Pendências 2
+
+Mensagem comercial possível: “Descubra onde sua empresa pode vender para o governo - antes da concorrência.”
+
+3. Regra fundamental: requisito eliminatório não pode ser compensado 
+
+RN-001 Requisito eliminatório não pode ser compensado por pontuação em outros critérios. Um bloqueio deve permanecer visível mesmo quando a compatibilidade comercial é alta.
+
+Exemplo: uma empresa pode ter 96% de compatibilidade comercial, mas não possuir um atestado técnico obrigatório. O sistema deve apresentar “Compatibilidade comercial: 96%” e “Habilitação técnica: BLOQUEIO”, explicando qual requisito não foi comprovado.
+
+por onde começar:
+1- Comecaria pelo backend cadastral: 
